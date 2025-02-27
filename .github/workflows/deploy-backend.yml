@@ -31,8 +31,8 @@ jobs:
           docker build -t africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest .
           docker push africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest
 
-      - name: Deploy to Compute Engine
+      - name: Deploy Backend
         run: |
           gcloud compute instances update-container instance-20250225-125631 \
-            --container-image=africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest \
-            --zone=africa-south1-a
+            --zone=africa-south1-a \
+            --container-image="africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest"
