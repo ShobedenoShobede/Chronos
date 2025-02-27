@@ -1,0 +1,38 @@
+name: Deploy Backend to Google Cloud
+
+on:
+  push:
+    branches:
+      - main  # Change this if your main branch has a different name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: chronos-sa
+
+      - name: Configure Docker Authentication
+        run: gcloud auth configure-docker africa-south1-docker.pkg.dev
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest .
+          docker push africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest
+
+      - name: Deploy to Compute Engine
+        run: |
+          gcloud compute instances update-container instance-20250225-125631 \
+            --container-image=africa-south1-docker.pkg.dev/chronos-sa/chronos-backend/chronos-backend:latest \
+            --zone=africa-south1-a
